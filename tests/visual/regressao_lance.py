@@ -6,9 +6,7 @@ from playwright.async_api import async_playwright
 
 TIMEOUT_PAGINA = 90000
 
-# ==========================================
 # FUNÇÃO PARA LER AS URLs DO ARQUIVO JSON
-# ==========================================
 def carregar_urls():
     # Pega o caminho exato onde este script está rodando
     diretorio_atual = os.path.dirname(__file__)
@@ -22,7 +20,7 @@ async def processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semafor
     async with semaforo:
         pagina = None
         try:
-            registrar_log(f"⏳ [INICIANDO] {nome_pagina}")
+            registrar_log(f"[INICIANDO] {nome_pagina}")
             pagina = await contexto.new_page()
             await pagina.goto(url, timeout=TIMEOUT_PAGINA)
             
@@ -35,10 +33,10 @@ async def processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semafor
             
             caminho_foto = os.path.join(pasta_evidencias, f"{nome_pagina}.png")
             await pagina.screenshot(path=caminho_foto, full_page=True)
-            registrar_log(f"✅ [PASSOU] {nome_pagina}")
+            registrar_log(f"[PASSOU] {nome_pagina}")
             
         except Exception as e:
-            registrar_log(f"❌ [FALHOU] {nome_pagina}: {e}")
+            registrar_log(f" [FALHOU] {nome_pagina}: {e}")
         finally:
             if pagina:
                 await pagina.close()
@@ -58,7 +56,7 @@ async def rodar_regressao_turbo():
     # Carrega as URLs diretamente do arquivo JSON!
     urls_teste = carregar_urls()
 
-    registrar_log(f"🚀 Iniciando Suíte Visual TURBO ({len(urls_teste)} páginas | 5 abas simultâneas)...")
+    registrar_log(f" Iniciando Suíte Visual TURBO ({len(urls_teste)} páginas | 5 abas simultâneas)...")
 
     async with async_playwright() as p:
         # Modo invisível para voar baixo
@@ -80,7 +78,7 @@ async def rodar_regressao_turbo():
         await asyncio.gather(*tarefas)
 
         await navegador.close()
-        registrar_log("\n🎉 Regressão Visual TURBO Finalizada!")
+        registrar_log("\n🎉 Regressão Visual Finalizada!")
 
 if __name__ == "__main__":
     asyncio.run(rodar_regressao_turbo())
