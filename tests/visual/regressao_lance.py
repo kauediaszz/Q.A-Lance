@@ -1,5 +1,5 @@
-from playwright.sync_api import sync_playwright
-import time
+import asyncio
+from playwright.async_api import async_playwright
 import os
 from datetime import datetime
 
@@ -7,10 +7,7 @@ from datetime import datetime
 # MASSA DE DADOS: URLs PARA REGRESSÃO VISUAL
 # ==========================================
 URLS_TESTE = {
-    # 1. HOME PRINCIPAL
     "1_Home_Principal": "https://www.lance.com.br/",
-
-    # 2. HOMES INTERNAS (TIMES)
     "2_Time_Flamengo": "https://www.lance.com.br/flamengo",
     "3_Time_Palmeiras": "https://www.lance.com.br/palmeiras",
     "4_Time_Atletico_MG": "https://www.lance.com.br/atletico-mineiro",
@@ -27,8 +24,6 @@ URLS_TESTE = {
     "15_Time_Ceara": "https://www.lance.com.br/ceara",
     "16_Time_Fluminense": "https://www.lance.com.br/fluminense",
     "17_Time_Vitoria": "https://www.lance.com.br/vitoria",
-
-    # 3. TABELAS DE CAMPEONATOS
     "18_Tabelas_Brasileirao": "https://www.lance.com.br/tabela/brasileirao",
     "19_Tabelas_Brasileirao_Serie_B": "https://www.lance.com.br/tabela/brasileirao-serie-b",
     "20_Tabelas_Copa_do_Brasil": "https://www.lance.com.br/tabela/copa-do-brasil",
@@ -40,11 +35,7 @@ URLS_TESTE = {
     "26_Tabelas_Campeonato_Italiano": "https://www.lance.com.br/tabela/campeonato-italiano",
     "27_Tabelas_Campeonato_Alemao": "https://www.lance.com.br/tabela/campeonato-alemao",
     "28_Tabelas_Campeonato_Frances": "https://www.lance.com.br/tabela/campeonato-frances",
-
-    # 4. TEMPO REAL E AGENDA
     "29_Tempo_Real_Agenda": "https://www.lance.com.br/temporeal/agenda",
-
-    # 5. DEMAIS PÁGINAS E EDITORIAS
     "30_Ultimas_Noticias": "https://www.lance.com.br/mais-noticias",
     "31_Futebol_Internacional": "https://www.lance.com.br/futebol-internacional",
     "32_Futebol_Feminino": "https://www.lance.com.br/futebol-feminino",
@@ -60,8 +51,35 @@ URLS_TESTE = {
 
 TIMEOUT_PAGINA = 90000
 
-def realizar_regressao_visual():
-    # 1. Configurações de pastas e logs
+# Esta função cuida de UMA única página (agora usando await)
+async def processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semaforo, registrar_log):
+    # O semáforo segura a emoção do código para não abrir 40 abas de uma vez e explodir a memória do PC
+    async with semaforo:
+        pagina = None
+        try:
+            registrar_log(f"⏳ [INICIANDO] {nome_pagina}")
+            pagina = await contexto.new_page()
+            await pagina.goto(url, timeout=TIMEOUT_PAGINA)
+            
+            # Scroll humanizado assíncrono (muito mais rápido)
+            for _ in range(8):
+                await pagina.mouse.wheel(0, 800)
+                await asyncio.sleep(0.2)
+            await pagina.evaluate("window.scrollTo({ top: 0, behavior: 'smooth' })")
+            await asyncio.sleep(1)
+            
+            caminho_foto = os.path.join(pasta_evidencias, f"{nome_pagina}.png")
+            await pagina.screenshot(path=caminho_foto, full_page=True)
+            registrar_log(f"✅ [PASSOU] {nome_pagina}")
+            
+        except Exception as e:
+            registrar_log(f"❌ [FALHOU] {nome_pagina}: {e}")
+        finally:
+            if pagina:
+                await pagina.close()
+
+# O Maestro que coordena as abas
+async def rodar_regressao_turbo():
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     pasta_evidencias = f"evidencias_visuais_{timestamp}"
     os.makedirs(pasta_evidencias, exist_ok=True)
@@ -72,46 +90,30 @@ def realizar_regressao_visual():
         with open(arquivo_log, "a", encoding="utf-8") as f:
             f.write(mensagem + "\n")
 
-    # =========================================================
-    # FUNÇÃO: Scroll Humanizado (Evita quebra por Lazy Loading)
-    # =========================================================
-    def scroll_humanizado(pagina_alvo):
-       
-        for _ in range(8):
-            pagina_alvo.mouse.wheel(0, 800)
-            time.sleep(0.5)
-        pagina_alvo.evaluate("window.scrollTo({ top: 0, behavior: 'smooth' })")
-        time.sleep(2)
+    registrar_log("🚀 Iniciando Suíte Visual TURBO (5 abas simultâneas)...")
 
-    registrar_log("Iniciando Suíte de Regressão Visual em Lote - Lance.com.br")
-    registrar_log(f"As 40 evidências serão salvas em: {pasta_evidencias}\n")
+    async with async_playwright() as p:
+        # Modo invisível ligado para máxima performance
+        navegador = await p.chromium.launch(headless=True)
+        contexto = await navegador.new_context(viewport={'width': 1920, 'height': 1080})
+        
+        # Define que o robô pode abrir até 5 abas ao mesmo tempo
+        semaforo = asyncio.Semaphore(5)
+        tarefas = []
 
-    with sync_playwright() as p:
-        navegador = p.chromium.launch(channel="chrome", headless=False)
-        contexto = navegador.new_context(viewport={'width': 1920, 'height': 1080})
-        pagina = contexto.new_page()
-
-        # O laço de repetição (for) vai ler a nossa lista de 40 URLs uma por uma
+        # Prepara todas as tarefas
         for nome_pagina, url in URLS_TESTE.items():
-            try:
-                registrar_log(f"Acessando [{nome_pagina}]: {url}")
-                pagina.goto(url, timeout=TIMEOUT_PAGINA)
-                
-                # Roda o scroll em todas as páginas para garantir o visual perfeito
-                scroll_humanizado(pagina)
-                
-                # Define o caminho e o nome da foto
-                caminho_foto = os.path.join(pasta_evidencias, f"{nome_pagina}.png")
-                
-                # Tira a foto pegando a PÁGINA INTEIRA (full_page=True)
-                pagina.screenshot(path=caminho_foto, full_page=True)
-                registrar_log(f"PASSOU - Print capturado: {nome_pagina}.png\n")
-                
-            except Exception as e:
-                registrar_log(f" FALHOU - Erro ao capturar {nome_pagina}: {e}\n")
+            tarefa = asyncio.create_task(
+                processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semaforo, registrar_log)
+            )
+            tarefas.append(tarefa)
 
-        navegador.close()
-        registrar_log("\n🎉 Regressão Visual Finalizada! Todas as 40 páginas foram processadas.")
+        # Dispara todas as 5 abas e vai puxando as próximas da fila conforme forem terminando
+        await asyncio.gather(*tarefas)
+
+        await navegador.close()
+        registrar_log("\n🎉 Regressão Visual TURBO Finalizada!")
 
 if __name__ == "__main__":
-    realizar_regressao_visual()
+    # O Python precisa desse comando para rodar coisas assíncronas
+    asyncio.run(rodar_regressao_turbo())

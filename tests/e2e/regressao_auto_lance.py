@@ -7,9 +7,9 @@ URL_HOME = "https://www.lance.com.br/"
 URL_TABELA = "https://www.lance.com.br/tabela/brasileirao"
 URL_AGENDA = "https://www.lance.com.br/temporeal/agenda"
 
-# Constantes de tempo para facilitar a manutenção
-TIMEOUT_PAGINA = 90000   # 90 segundos para a página carregar (redes lentas)
-TIMEOUT_ELEMENTO = 15000 # 15 segundos para um elemento aparecer na tela
+
+TIMEOUT_PAGINA = 90000   # 90 segundos 
+TIMEOUT_ELEMENTO = 15000 # 15 segundos 
 
 def rodar_testes_planilha():
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
