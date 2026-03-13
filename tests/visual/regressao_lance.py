@@ -3,9 +3,9 @@ from playwright.async_api import async_playwright
 import os
 from datetime import datetime
 
-# ==========================================
+
 # MASSA DE DADOS: URLs PARA REGRESSÃO VISUAL
-# ==========================================
+
 URLS_TESTE = {
     "1_Home_Principal": "https://www.lance.com.br/",
     "2_Time_Flamengo": "https://www.lance.com.br/flamengo",
@@ -57,7 +57,7 @@ async def processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semafor
     async with semaforo:
         pagina = None
         try:
-            registrar_log(f"⏳ [INICIANDO] {nome_pagina}")
+            registrar_log(f"[INICIANDO] {nome_pagina}")
             pagina = await contexto.new_page()
             await pagina.goto(url, timeout=TIMEOUT_PAGINA)
             
@@ -70,10 +70,10 @@ async def processar_pagina(nome_pagina, url, contexto, pasta_evidencias, semafor
             
             caminho_foto = os.path.join(pasta_evidencias, f"{nome_pagina}.png")
             await pagina.screenshot(path=caminho_foto, full_page=True)
-            registrar_log(f"✅ [PASSOU] {nome_pagina}")
+            registrar_log(f" [PASSOU] {nome_pagina}")
             
         except Exception as e:
-            registrar_log(f"❌ [FALHOU] {nome_pagina}: {e}")
+            registrar_log(f" [FALHOU] {nome_pagina}: {e}")
         finally:
             if pagina:
                 await pagina.close()
@@ -90,7 +90,7 @@ async def rodar_regressao_turbo():
         with open(arquivo_log, "a", encoding="utf-8") as f:
             f.write(mensagem + "\n")
 
-    registrar_log("🚀 Iniciando Suíte Visual TURBO (5 abas simultâneas)...")
+    registrar_log("Iniciando Suíte Visual TURBO (5 abas simultâneas)...")
 
     async with async_playwright() as p:
         # Modo invisível ligado para máxima performance
