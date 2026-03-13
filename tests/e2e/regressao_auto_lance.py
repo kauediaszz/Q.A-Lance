@@ -23,7 +23,6 @@ def rodar_testes_planilha():
             f.write(mensagem + "\n")
 
     
-    # FUNÇÃO: Scroll Humanizado (Evita quebra por Lazy Loading)
   
     def scroll_humanizado(pagina_alvo):
         for _ in range(8):
@@ -32,20 +31,20 @@ def rodar_testes_planilha():
         pagina_alvo.evaluate("window.scrollTo({ top: 0, behavior: 'smooth' })")
         time.sleep(2)
 
-    registrar_log("🚀 Iniciando Suíte de Regressão Funcional COMPLETA - Lance.com.br")
-    registrar_log(f"📁 Evidências serão salvas em: {pasta_evidencias}\n")
+    registrar_log("Iniciando Suíte de Regressão Funcional COMPLETA - Lance.com.br")
+    registrar_log(f" Evidências serão salvas em: {pasta_evidencias}\n")
     
     with sync_playwright() as p:
         navegador = p.chromium.launch(channel="chrome", headless=False)
         contexto = navegador.new_context(viewport={'width': 1920, 'height': 1080})
         pagina = contexto.new_page()
 
-        # CT: HOME-01 - Carregamento da Home
+        #  - Carregamento da Home
         try:
-            registrar_log("⏳ [HOME-01] Carregamento da Home...")
+            registrar_log(" [HOME-01] Carregamento da Home...")
             pagina.goto(URL_HOME, timeout=TIMEOUT_PAGINA)
             
-            scroll_humanizado(pagina) # Scroll aplicado aqui
+            scroll_humanizado(pagina) 
             
             expect(pagina.locator("header").first).to_be_visible(timeout=TIMEOUT_ELEMENTO)
             expect(pagina.locator("footer").first).to_be_visible(timeout=TIMEOUT_ELEMENTO)
@@ -56,9 +55,9 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "HOME-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: SEO-01 - Meta Tags e Title
+        # - Meta Tags e Title
         try:
-            registrar_log("⏳ [SEO-01] Meta Tags e Title...")
+            registrar_log(" [SEO-01] Meta Tags e Title...")
             titulo = pagina.title()
             assert len(titulo) > 0, "Title está vazio!"
             meta_desc = pagina.locator('meta[name="description"]').get_attribute("content")
@@ -69,9 +68,9 @@ def rodar_testes_planilha():
         except Exception as e:
             registrar_log(f" FALHOU: {e}")
 
-        # CT: ADS-01 - Carregamento de Banners
+        # - Carregamento de Banners
         try:
-            registrar_log("⏳ [ADS-01] Carregamento de Banners...")
+            registrar_log(" [ADS-01] Carregamento de Banners...")
             pagina.locator("iframe").first.wait_for(state="attached", timeout=TIMEOUT_ELEMENTO)
             anuncios = pagina.locator("iframe").count()
             assert anuncios > 0, "Nenhum banner/iframe de anúncio foi encontrado na Home."
@@ -82,12 +81,12 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "ADS-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: MENU-01 - Menu de Times/Clubes (URL Direta do Flamengo)
+        # - Menu de Times/Clubes (URL Direta do Flamengo)
         try:
-            registrar_log("⏳ [MENU-01] Página de Times/Clubes (Flamengo via URL)...")
+            registrar_log(" [MENU-01] Página de Times/Clubes (Flamengo via URL)...")
             pagina.goto("https://www.lance.com.br/flamengo", timeout=TIMEOUT_PAGINA)
             
-            scroll_humanizado(pagina) # Scroll aplicado aqui
+            scroll_humanizado(pagina) 
             
             expect(pagina.locator("h1").first).to_be_visible(timeout=TIMEOUT_ELEMENTO)
             
@@ -97,9 +96,9 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "MENU-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: HOME-02 - Carrossel de Destaques
+        # - Carrossel de Destaques
         try:
-            registrar_log("⏳ [HOME-02] Carrossel de Destaques...")
+            registrar_log(" [HOME-02] Carrossel de Destaques...")
             pagina.goto(URL_HOME, timeout=TIMEOUT_PAGINA)
             time.sleep(3) 
             
@@ -115,14 +114,14 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "HOME-02_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: ART-01 - Renderização de Matéria
+        # - Renderização de Matéria
         try:
-            registrar_log("⏳ [ART-01] Renderização de Matéria...")
+            registrar_log(" [ART-01] Renderização de Matéria...")
             pagina.goto(URL_HOME, timeout=TIMEOUT_PAGINA)
             # Foco em link com .html
             pagina.locator("main a[href$='.html']").first.click(timeout=TIMEOUT_ELEMENTO)
 
-            scroll_humanizado(pagina) # Scroll aplicado aqui
+            scroll_humanizado(pagina) 
 
             expect(pagina.locator("h1").first).to_be_visible(timeout=TIMEOUT_ELEMENTO) 
             # Validação da data atualizada
@@ -135,9 +134,9 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "ART-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: ART-02 - Incorporação de Mídia
+        # - Incorporação de Mídia
         try:
-            registrar_log("⏳ [ART-02] Incorporação de Mídia...")
+            registrar_log(" [ART-02] Incorporação de Mídia...")
             time.sleep(4) 
             tem_iframe = pagina.locator("iframe").count() > 0
             tem_video = pagina.locator("video").count() > 0
@@ -146,16 +145,16 @@ def rodar_testes_planilha():
             if tem_iframe or tem_video:
                 registrar_log(" PASSOU - Mídia (vídeo ou post) encontrada na matéria.")
             else:
-                registrar_log("⚠️ ALERTA: Esta matéria não tem vídeos para testar.")
+                registrar_log(" ALERTA: Esta matéria não tem vídeos para testar.")
         except Exception as e:
             registrar_log(f"FALHOU: {e}")
 
-        # CT: TAB-01 - Tabela do Brasileirão
+        # - Tabela do Brasileirão
         try:
-            registrar_log("⏳ [TAB-01] Tabela do Brasileirão...")
+            registrar_log(" [TAB-01] Tabela do Brasileirão...")
             pagina.goto(URL_TABELA, timeout=TIMEOUT_PAGINA)
             
-            scroll_humanizado(pagina) # Scroll aplicado aqui
+            scroll_humanizado(pagina) 
             
             expect(pagina.locator("table").first).to_be_visible(timeout=TIMEOUT_ELEMENTO)
             
@@ -165,9 +164,9 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "TAB-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: LIVE-01 - Tempo Real
+        # - Tempo Real
         try:
-            registrar_log("⏳ [LIVE-01] Tempo Real...")
+            registrar_log(" [LIVE-01] Tempo Real...")
             pagina.goto(URL_AGENDA, timeout=TIMEOUT_PAGINA)
             expect(pagina.locator("body")).to_be_visible(timeout=TIMEOUT_ELEMENTO) 
             
@@ -178,9 +177,9 @@ def rodar_testes_planilha():
             pagina.screenshot(path=os.path.join(pasta_evidencias, "LIVE-01_ERRO.png"))
             registrar_log(f"FALHOU: {e}")
 
-        # CT: MENU-02 - Menu Hambúrguer (Mobile)
+        # - Menu Hambúrguer (Mobile)
         try:
-            registrar_log("⏳ [MENU-02] Menu Hambúrguer (Mobile)...")
+            registrar_log(" [MENU-02] Menu Hambúrguer (Mobile)...")
             contexto_mobile = navegador.new_context(
                 viewport={'width': 390, 'height': 844},
                 is_mobile=True,
