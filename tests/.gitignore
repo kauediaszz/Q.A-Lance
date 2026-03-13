@@ -7,3 +7,4 @@ __pycache__/
 
 # Ignorar massa de dados real (Segurança/Privacidade)
 urls.json
+urls_funcionais.json
