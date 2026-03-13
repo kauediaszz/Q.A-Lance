@@ -76,15 +76,15 @@ def realizar_regressao_visual():
     # FUNÇÃO: Scroll Humanizado (Evita quebra por Lazy Loading)
     # =========================================================
     def scroll_humanizado(pagina_alvo):
-        registrar_log("   👉 Executando scroll humanizado...")
+       
         for _ in range(8):
             pagina_alvo.mouse.wheel(0, 800)
             time.sleep(0.5)
         pagina_alvo.evaluate("window.scrollTo({ top: 0, behavior: 'smooth' })")
         time.sleep(2)
 
-    registrar_log("🚀 Iniciando Suíte de Regressão Visual em Lote - Lance.com.br")
-    registrar_log(f"📁 As 40 evidências serão salvas em: {pasta_evidencias}\n")
+    registrar_log("Iniciando Suíte de Regressão Visual em Lote - Lance.com.br")
+    registrar_log(f"As 40 evidências serão salvas em: {pasta_evidencias}\n")
 
     with sync_playwright() as p:
         navegador = p.chromium.launch(channel="chrome", headless=False)
@@ -94,7 +94,7 @@ def realizar_regressao_visual():
         # O laço de repetição (for) vai ler a nossa lista de 40 URLs uma por uma
         for nome_pagina, url in URLS_TESTE.items():
             try:
-                registrar_log(f"⏳ Acessando [{nome_pagina}]: {url}")
+                registrar_log(f"Acessando [{nome_pagina}]: {url}")
                 pagina.goto(url, timeout=TIMEOUT_PAGINA)
                 
                 # Roda o scroll em todas as páginas para garantir o visual perfeito
@@ -105,10 +105,10 @@ def realizar_regressao_visual():
                 
                 # Tira a foto pegando a PÁGINA INTEIRA (full_page=True)
                 pagina.screenshot(path=caminho_foto, full_page=True)
-                registrar_log(f"✅ PASSOU - Print capturado: {nome_pagina}.png\n")
+                registrar_log(f"PASSOU - Print capturado: {nome_pagina}.png\n")
                 
             except Exception as e:
-                registrar_log(f"❌ FALHOU - Erro ao capturar {nome_pagina}: {e}\n")
+                registrar_log(f" FALHOU - Erro ao capturar {nome_pagina}: {e}\n")
 
         navegador.close()
         registrar_log("\n🎉 Regressão Visual Finalizada! Todas as 40 páginas foram processadas.")
