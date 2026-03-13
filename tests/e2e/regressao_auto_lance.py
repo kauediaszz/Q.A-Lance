@@ -22,9 +22,9 @@ def rodar_testes_planilha():
         with open(arquivo_log, "a", encoding="utf-8") as f:
             f.write(mensagem + "\n")
 
-    # =========================================================
+    
     # FUNÇÃO: Scroll Humanizado (Evita quebra por Lazy Loading)
-    # =========================================================
+  
     def scroll_humanizado(pagina_alvo):
         for _ in range(8):
             pagina_alvo.mouse.wheel(0, 800)
