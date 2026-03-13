@@ -1,0 +1,5 @@
+# Ignorar pastas de evidencias e relatorios
+evidencias_funcionais_*/
+regressao_lance_*/
+__pycache__/
+*.png
