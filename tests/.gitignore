@@ -4,6 +4,7 @@ evidencias_visuais_*/
 regressao_lance_*/
 __pycache__/
 *.png
+.venv/
 
 # Ignorar massa de dados real (Segurança/Privacidade)
 urls.json
